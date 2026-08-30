@@ -3,11 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AWA TDS Product Catalog</title>
+    <title>AWA TDS Management & Taxonomy Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="index.css">
+    <style>
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .proposal-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+            transition: all 0.2s;
+        }
+        .proposal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45);
+        }
+        .badge-validated {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-proposed {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-yes {
+            background: rgba(14, 165, 233, 0.15);
+            color: #0ea5e9;
+            border: 1px solid rgba(14, 165, 233, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-copied {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-missing {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -17,8 +89,14 @@
                 <img src="awa_logo.png" alt="AWA Group Logo" class="header-logo">
                 <div class="title-group">
                     <h1>Technical Data Sheets</h1>
-                    <p class="subtitle">Food & Bio Solutions Product Catalog</p>
+                    <p class="subtitle">Food & Bio Solutions 3-Level Taxonomy Catalog</p>
                 </div>
+            </div>
+            <div class="header-actions">
+                <a href="/api/download-proposal" class="proposal-btn" download>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Download Taxonomy Proposal (PDF)
+                </a>
             </div>
         </header>
 
@@ -29,10 +107,34 @@
                 <!-- Toolbar / Filters -->
                 <div class="card filter-panel">
                     <div class="search-box">
-                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" id="search-input" placeholder="Search products by name, ingredients, or application...">
+                        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="search-input" placeholder="Search by material name, ingredient, active assay, or food matrix...">
                     </div>
                     <div class="dropdowns-grid">
+                        <div class="filter-group">
+                            <label for="industry-filter">Level 1: Industry / Market</label>
+                            <select id="industry-filter">
+                                <option value="">All Industries</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="category-filter">Level 2: Product Category</label>
+                            <select id="category-filter">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="tds-filter">TDS Found Status</label>
+                            <select id="tds-filter">
+                                <option value="">All TDS Statuses</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="validation-filter">Validation Status</label>
+                            <select id="validation-filter">
+                                <option value="">All Validations</option>
+                            </select>
+                        </div>
                         <div class="filter-group">
                             <label for="company-filter">Company</label>
                             <select id="company-filter">
@@ -43,24 +145,6 @@
                             <label for="brand-filter">Brand</label>
                             <select id="brand-filter">
                                 <option value="">All Brands</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="category-filter">Category</label>
-                            <select id="category-filter">
-                                <option value="">All Categories</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="subcat-filter">Subcategory</label>
-                            <select id="subcat-filter">
-                                <option value="">All Subcategories</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="tagcat-filter">Functional Group</label>
-                            <select id="tagcat-filter">
-                                <option value="">All Groups</option>
                             </select>
                         </div>
                     </div>
@@ -74,21 +158,20 @@
                     <!-- Left: Table Explorer -->
                     <div class="card table-panel">
                         <div class="panel-header">
-                            <h2>Products</h2>
+                            <h2>Products Catalog</h2>
                             <span class="count-badge" id="results-count">0 items</span>
                         </div>
                         <div class="table-wrapper">
                             <table id="products-table">
                                 <thead>
                                     <tr>
-                                        <th style="width: 60px;">ID</th>
-                                        <th>Filename</th>
-                                        <th>Company</th>
-                                        <th>Brand</th>
-                                        <th>Application</th>
-                                        <th>Type</th>
-                                        <th>Audit</th>
-                                        <th>Recommendation</th>
+                                        <th style="width: 50px;">ID</th>
+                                        <th>Material Name</th>
+                                        <th>Level 1: Industry</th>
+                                        <th>Level 3: Application</th>
+                                        <th>TDS Status</th>
+                                        <th>Validation</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="products-tbody">
@@ -105,7 +188,7 @@
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="11" y2="17"></line></svg>
                             </div>
                             <h3>No Product Selected</h3>
-                            <p>Select any item from the table on the left to inspect detailed technical specifications and mappings.</p>
+                            <p>Select any material on the left to inspect complete technical specifications, taxonomy hierarchy, and view TDS documents.</p>
                         </div>
                         <div class="details-content hidden" id="details-view">
                             <!-- Dynamic content -->
@@ -117,118 +200,24 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <p>AWA Food & Bio Solutions &bull; TDS Management Portal</p>
+            <p>AWA Food & Bio Solutions &bull; TDS Technical Data Management System &bull; Local Portal</p>
         </footer>
     </div>
 
     <!-- Document Preview Modal -->
     <div id="preview-modal" class="modal-overlay hidden">
-        <div class="modal-container card">
+        <div class="modal-container card" style="max-width: 920px; height: 88vh; display: flex; flex-direction: column;">
             <div class="modal-header">
                 <h3 id="modal-filename">Document Preview</h3>
                 <button id="close-modal-btn" class="close-btn">&times;</button>
             </div>
-            <div class="modal-body">
-                <div id="preview-container" class="preview-scroll-container"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Edit Audit Data Modal -->
-    <div id="edit-modal" class="modal-overlay hidden">
-        <div class="modal-container card edit-modal-container">
-            <div class="modal-header">
-                <h3 id="edit-modal-title">Edit Product Record</h3>
-                <button id="close-edit-modal-btn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body form-modal-body">
-                <form id="edit-form">
-                    <input type="hidden" id="edit-doc-id">
-                    
-                    <div class="form-row three-col">
-                        <div class="filter-group">
-                            <label>Company</label>
-                            <input type="text" id="edit-company" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Brand</label>
-                            <input type="text" id="edit-brand" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Product Type</label>
-                            <input type="text" id="edit-type" class="form-input">
-                        </div>
-                    </div>
-
-                    <div class="filter-group form-row">
-                        <label>Application (Category - Subcategory)</label>
-                        <input type="text" id="edit-application" class="form-input">
-                    </div>
-
-                    <div class="form-row two-col">
-                        <div class="filter-group">
-                            <label>Shelf Life</label>
-                            <input type="text" id="edit-shelf-life" class="form-input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Appearance</label>
-                            <input type="text" id="edit-appearance" class="form-input">
-                        </div>
-                    </div>
-
-                    <div class="filter-group form-row">
-                        <label>Ingredients</label>
-                        <textarea id="edit-ingredients" class="form-input" rows="2"></textarea>
-                    </div>
-
-                    <div class="filter-group form-row">
-                        <label>Packaging</label>
-                        <input type="text" id="edit-packaging" class="form-input">
-                    </div>
-
-                    <div class="filter-group form-row">
-                        <label>Storage Conditions</label>
-                        <textarea id="edit-storage" class="form-input" rows="2"></textarea>
-                    </div>
-
-                    <div class="form-row two-col">
-                        <div class="filter-group">
-                            <label>Audit</label>
-                            <select id="edit-audit" class="form-input">
-                                <option value="">(None)</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Recommendation</label>
-                            <input type="text" id="edit-recommendation" class="form-input">
-                        </div>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="secondary-btn" id="cancel-edit-btn">Cancel</button>
-                        <button type="submit" class="primary-btn">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Revision History Modal -->
-    <div id="history-modal" class="modal-overlay hidden">
-        <div class="modal-container card edit-modal-container" style="max-width: 680px;">
-            <div class="modal-header">
-                <h3 id="history-modal-title">Revision History</h3>
-                <button id="close-history-modal-btn" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="version-history-list" class="history-list"></div>
+            <div class="modal-body" style="flex: 1; padding: 0; overflow: hidden;">
+                <div id="preview-container" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
     </div>
 
     <!-- Load main script bundle -->
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=20"></script>
 </body>
 </html>

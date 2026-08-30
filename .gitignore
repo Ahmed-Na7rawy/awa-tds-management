@@ -11,3 +11,5 @@ venv/
 env/
 .env
 *.log
+node_modules/
+database/*_template.html

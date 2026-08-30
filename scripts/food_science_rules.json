@@ -1,0 +1,134 @@
+{
+  "feta341": {
+    "app": "Dairy - White and Block Feta Cheese; Dairy - Brined White Cheeses",
+    "func": "In Block and White Feta Cheese: Enhances curd firmness, optimizes slicing integrity, improves yield, and binds moisture stably during refrigerated brine aging."
+  },
+  "feta400": {
+    "app": "Dairy - Triangular Processed Cheese; Dairy - Spreadable Processed Cheese Jars; Dairy - Processed Cheese Blocks",
+    "func": "In Triangular and Spreadable Cheese: Acts as a specialized texturizer and emulsification stabilizer to prevent fat separation, eliminate oiling-off, and provide a smooth, velvety spreadable mouthfeel."
+  },
+  "fell": {
+    "app": "Dairy - White Cheeses; Dairy - Processed Cheese Preparations",
+    "func": "In White and Processed Cheese: Acts as a functional dairy filler and body builder, improving texture density and dry matter consistency."
+  },
+  "gms": {
+    "app": "Bakery - Sponge Cakes, Muffins and Cake Gels; Bakery - Table and Industrial Margarines; Dairy - Ice Cream and Frozen Desserts; Confectionery - Chewing Gum and Caramels",
+    "func": "In Cakes: Promotes rapid batter aeration, fine crumb structure, and anti-staling softness. In Margarines: Stabilizes water-in-oil emulsion. In Ice Cream: Improves dryness, extrusion stiffness, and retards ice crystallization."
+  },
+  "casing": {
+    "app": "Savory - Frankfurters and Hot Dogs; Savory - Cooked and Smoked Sausages; Savory - Cocktail Sausages",
+    "func": "In Frankfurters and Sausages: Provides high mechanical tensile strength for automated stuffing, uniform caliber diameter, optimal smoke permeability, and clean peeling."
+  },
+  "cocoa": {
+    "app": "Bakery - Chocolate Cakes, Cookies and Brownies; Confectionery - Compound Chocolate Coatings and Enrobing; Beverages - Chocolate Flavored Milk and RTD Drinks; Dairy - Chocolate Ice Cream and Desserts",
+    "func": "In Bakery and Confectionery: Imparts rich chocolate color, authentic cocoa flavor, and fat profile. In Chocolate Milk: Provides suspension stability and deep chocolate sensory notes."
+  },
+  "xanthan": {
+    "app": "Sauces and Condiments - Mayonnaise, Salad Dressings and Ketchup; Beverages - Fruit Juices and Suspended Pulp Drinks; Bakery - Gluten-Free Bread and Pastries; Savory - Table Sauces and Marinades",
+    "func": "In Dressings and Sauces: Imparts strong pseudoplastic shear-thinning viscosity, emulsion stability, and cling. In Beverages: Suspends fruit pulp. In Gluten-Free Bakery: Replaces gluten network to retain moisture and gas bubbles."
+  },
+  "guar": {
+    "app": "Dairy - Ice Cream and Frozen Desserts; Bakery - Toast Bread and Buns; Sauces and Condiments - Commercial Dressings and Dips; Dairy - Processed Cheese",
+    "func": "In Ice Cream: Delivers rapid cold hydration, binds free water, and prevents icy graininess. In Bread: Increases dough water absorption and bread softness."
+  },
+  "carrageenan": {
+    "app": "Savory - Injected Cooked Hams and Poultry Breasts; Savory - Emulsified Sausages and Luncheon; Dairy - Dairy Desserts, Puddings and Flavored Milk",
+    "func": "In Meat: Interacts synergistically with meat myofibrillar proteins to form a resilient thermo-irreversible gel, dramatically increasing cooking yield and sliceability. In Dairy: Suspends cocoa in milk without sedimentation."
+  },
+  "pectin_low_sugar": {
+    "app": "Bakery - Low-Sugar Fruit Jams and Spreads; Dairy - Fruit Preparations for Stirred and Layered Yogurt; Beverages - Fruit Juices",
+    "func": "In Low-Sugar Jams: Reacts with calcium ions to form a delicate, spreadable gel independent of sugar content. In Yogurt Fruit Prep: Suspends whole fruit chunks without syneresis or bleeding into the white yogurt mass."
+  },
+  "pectin_bake_stable": {
+    "app": "Bakery - Bake-Stable Pastry Jams and Pie Fillings; Bakery - Fruit Glazes and Danishes",
+    "func": "In Bakery Jams: Imparts exceptional thermo-reversibility and bake-stability, preventing jam boiling-out or burning during high-temperature oven baking."
+  },
+  "pectin_confectionery": {
+    "app": "Confectionery - Gummy Bears, Fruit Jellies and Gelled Candies; Beverages - Acidic Fruit Drink Formulations",
+    "func": "In Confectionery: Produces clear, elastic, tender-textured pectin jellies with fast setting time, clean flavor release, and high heat stability in hot climates."
+  },
+  "textra_croissant": {
+    "app": "Bakery - Croissants and Laminated Puff Pastry; Bakery - Toast Bread and Sandwich Buns; Bakery - Frozen Dough Products",
+    "func": "In Croissants and Laminated Dough: Strengthens gluten matrix, improves dough extensibility and gas retention, enhances oven spring, and provides flaky crumb lamination."
+  },
+  "textra_leavening": {
+    "app": "Bakery - Layer Cakes, Sponge Cakes and Muffins; Bakery - Cookies, Biscuits and Wafers; Bakery - Pancakes and Donuts",
+    "func": "In Cakes and Biscuits: Engineered double-acting chemical leavening blend ensuring controlled, continuous carbon dioxide release for maximum batter volume and tender crumb texture."
+  },
+  "textra_icecream": {
+    "app": "Dairy - Soft-Serve and Hard-Pack Ice Cream; Dairy - Frozen Yogurt and Milkshakes; Dairy - Whipped Toppings and Imitation Creams",
+    "func": "In Ice Cream: Provides controlled overrun (air incorporation), creamy rich texture, high melting resistance during distribution, and eliminates icy mouthfeel."
+  },
+  "textra_meat": {
+    "app": "Savory - Emulsified Sausages (Frankfurters, Bologna, Luncheon); Savory - Beef Burgers, Kofta and Meatballs; Savory - Injected Whole Muscle Poultry and Beef",
+    "func": "In Emulsified and Minced Meats: Optimizes meat protein activation, binds fat and added water tightly during thermal processing, reduces purge in packaging, and delivers firm bite."
+  },
+  "black_pepper": {
+    "app": "Savory - Processed Meats and Sausages; Savory - Snack Topical Seasonings and Chips; Sauces and Condiments - Table Sauces, Gravies and Marinades; Food Processing - Canned Foods and Soups",
+    "func": "In Meats and Seasonings: Delivers standardized, concentrated pungent piperine heat and terpene top-notes without particulate microbial contamination or black speck discoloration."
+  },
+  "paprika": {
+    "app": "Savory - Meat Products and Sausages; Savory - Snack Food Seasonings (Potato and Corn Chips); Sauces and Condiments - Ketchup, BBQ Sauces and Dressings; Food Coloring - Natural Orange-Red Hue",
+    "func": "In Snacks and Meats: Provides standardized natural carotenoid color (ASTA / Color Units) combined with authentic sweet paprika aroma and heat, heat-stable during baking/frying."
+  },
+  "allium": {
+    "app": "Savory - Snack Seasonings and Extruded Snacks; Savory - Meat Products, Burgers and Marinades; Sauces and Condiments - Mayonnaise, Dressings and Dips; Food Processing - Instant Noodles and Soups",
+    "func": "In Seasonings and Marinades: Delivers authentic pungent allium sulfur aroma and fresh taste notes at micro-dosage, replacing raw bulk powders with instant flavor release."
+  },
+  "oleoresin_general": {
+    "app": "Savory - Snack Seasonings and Topical Dusting; Savory - Meat Processing and Cured Products; Sauces and Condiments - Table Sauces and Marinades; Food Processing - Ready Meals and Canned Foods",
+    "func": "In Seasonings and Meats: Concentrated spice extract offering uniform flavor distribution, bacteriological safety, long shelf life, and standardized volatile essential oil profile."
+  },
+  "annatto": {
+    "app": "Dairy - Cheddar Cheese, Processed Cheese and Butter; Bakery - Biscuits, Crackers and Wafers; Savory - Snack Seasonings and Extruded Snacks; Confectionery - Hard Candies and Fillings",
+    "func": "In Cheese and Snacks: Delivers stable, bright yellow-to-orange shade (Norbixin / Bixin) with high protein affinity and excellent light/heat stability in dairy and extruded snacks."
+  },
+  "caramel": {
+    "app": "Beverages - Cola Drinks and Carbonated Soft Drinks; Beverages - Dark Beers and Spirits; Savory - Soy Sauces, Gravies and BBQ Sauces; Bakery - Breads, Cookies and Chocolate Fillings",
+    "func": "In Beverages and Sauces: Imparts deep amber to dark brown coloration with acid stability, colloidal compatibility, and subtle toasted undertones."
+  },
+  "curcumin": {
+    "app": "Dairy - Ice Cream and Butter; Savory - Pickling, Mustards and Seasonings; Confectionery - Hard and Soft Candies; Bakery - Cake Mixes and Pastries",
+    "func": "In Dairy and Confectionery: Provides brilliant bright lemon-yellow natural color with high water/oil dispersibility and clean sensory profile."
+  },
+  "chlorophyll": {
+    "app": "Confectionery - Mint Candies, Gums and Jellies; Beverages - Green Tea, Lime and Fruit Beverages; Dairy - Ice Creams and Desserts",
+    "func": "In Confectionery and Drinks: Provides vibrant olive-to-bright green natural coloration (E140/E141) with optimized water solubility."
+  },
+  "red_color": {
+    "app": "Savory - Processed Meat and Sausages (Color Standardization); Dairy - Strawberry Yogurts, Ice Creams and Milk; Beverages - Soft Drinks and Fruit Juices; Confectionery - Gummies and Sweets",
+    "func": "In Meats and Dairy: Imparts heat- and light-stable vivid pink-to-deep red hue, maintaining fresh appealing appearance throughout shelf-life."
+  },
+  "calcium_propionate": {
+    "app": "Bakery - Yeast-Raised Sliced Breads, Buns and Rolls; Bakery - Pita, Tortillas and Flatbreads; Bakery - Sweet Breads and Panettone",
+    "func": "In Yeast Breads and Flatbreads: Inhibits mold (Aspergillus, Penicillium) and bacterial rope (Bacillus subtilis) growth without impeding yeast fermentation activity, extending shelf-life by 7 to 14 days."
+  },
+  "sorbate_benzoate": {
+    "app": "Beverages - Carbonated Drinks, Still Juices and Energy Drinks; Sauces and Condiments - Mayonnaise, Ketchup, Dressings and Table Sauces; Dairy - Yogurt Fruit Bases and Processed Cheese; Bakery - Fruit Fillings, Jams and Glazes",
+    "func": "In Acidic Beverages and Sauces (pH < 4.5): Delivers powerful broad-spectrum antimicrobial inhibition against yeasts, molds, and selective acidophilic bacteria, preserving flavor and preventing spoilage."
+  },
+  "sodium_nitrite": {
+    "app": "Savory - Cured Sausages, Frankfurters and Hot Dogs; Savory - Pastrami, Corned Beef and Bacons; Savory - Canned Luncheon Meats",
+    "func": "In Cured Meats: Reacts with myoglobin to fix the characteristic cured pink nitrosylmyoglobin color, suppresses lethal Clostridium botulinum spores, and retards lipid oxidation."
+  },
+  "phosphate": {
+    "app": "Savory - Processed Meat, Poultry and Seafood Marinades; Bakery - Chemical Leavening Systems (Cakes, Biscuits); Dairy - Evaporated Milk and Processed Cheese",
+    "func": "In Meat and Poultry: Increases protein ionic strength and pH, shifting muscle isoelectric point to maximize water-holding capacity and juiciness. In Bakery: Controls acid-reaction rates in leavening."
+  },
+  "starch": {
+    "app": "Sauces and Condiments - Ketchup, BBQ Sauces, Dressings and Gravies; Savory - Canned Soups, Ready Meals and Meat Fillings; Dairy - Yogurts, Puddings and Dessert Creams; Bakery - Fruit Fillings and Custards",
+    "func": "In Sauces and Dairy: Delivers freeze-thaw stability, high shear resistance during homogenization, acid tolerance, glossy sheen, and smooth short texture without retrogradation."
+  },
+  "protein": {
+    "app": "Savory - Burgers, Meatballs, Sausages and Nuggets; Plant-Based - Vegetarian and Vegan Meat Alternatives; Sports Nutrition - Protein Powder Drinks and Bars",
+    "func": "In Meat and Plant-Based Products: Provides meat-like fibrous chewiness, binds fat and water, reduces formulation costs, and improves protein nutritional profile."
+  },
+  "spice_blend": {
+    "app": "Savory - Targeted Ready-to-use Meat Formulations (Burgers, Sausages, Kofta, Pastrami); Sauces and Condiments - Pizza Sauces and Ketchup; Snacks - Topical Dusting and Crackers",
+    "func": "In Targeted Meat and Sauce Applications: Complete turnkey liquid seasoning profile delivering balanced authentic herbs, spices, and top-notes directly into the cutter or tumbler."
+  },
+  "default_val": {
+    "app": "Food Processing - Multi-industry Food Formulations (Bakery, Dairy, Meat and Beverages)",
+    "func": "In Food Formulations: Standardized functional ingredient supporting texture, stability, shelf-life, and processing performance across food matrices."
+  }
+}
