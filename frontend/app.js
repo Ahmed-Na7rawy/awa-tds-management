@@ -2,8 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // State management
     let state = {
         documents: [],
+        allDocuments: [],
         filters: {
             companies: [],
+            brands: [],
             categories: [],
             subcategories: [],
             tag_categories: []
@@ -50,16 +52,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function setupModal() {
-        closeModalBtn.addEventListener("click", () => {
-            previewModal.classList.add("hidden");
-            previewContainer.innerHTML = "";
-        });
-        previewModal.addEventListener("click", (e) => {
-            if (e.target === previewModal) {
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener("click", () => {
                 previewModal.classList.add("hidden");
                 previewContainer.innerHTML = "";
-            }
-        });
+            });
+        }
+        if (previewModal) {
+            previewModal.addEventListener("click", (e) => {
+                if (e.target === previewModal) {
+                    previewModal.classList.add("hidden");
+                    previewContainer.innerHTML = "";
+                }
+            });
+        }
     }
 
     // Tab switcher
@@ -81,7 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 state.activeTab = tabId;
                 
                 if (tabId === "schema-tab") {
-                    // Re-render SVG connections when the canvas becomes visible
                     setTimeout(renderSchemaDiagram, 50);
                 }
             });
@@ -91,57 +96,108 @@ document.addEventListener("DOMContentLoaded", () => {
     // Filter event listeners
     function setupFilters() {
         const triggerSearch = debounce(() => {
-            fetchData();
+            applyFilters();
         }, 300);
 
-        searchInput.addEventListener("input", triggerSearch);
-        companyFilter.addEventListener("change", fetchData);
-        if (brandFilter) brandFilter.addEventListener("change", fetchData);
-        categoryFilter.addEventListener("change", fetchData);
-        subcatFilter.addEventListener("change", fetchData);
-        tagcatFilter.addEventListener("change", fetchData);
+        if (searchInput) searchInput.addEventListener("input", triggerSearch);
+        if (companyFilter) companyFilter.addEventListener("change", applyFilters);
+        if (brandFilter) brandFilter.addEventListener("change", applyFilters);
+        if (categoryFilter) categoryFilter.addEventListener("change", applyFilters);
+        if (subcatFilter) subcatFilter.addEventListener("change", applyFilters);
+        if (tagcatFilter) tagcatFilter.addEventListener("change", applyFilters);
         
-        resetFiltersBtn.addEventListener("click", () => {
-            searchInput.value = "";
-            companyFilter.value = "";
-            if (brandFilter) brandFilter.value = "";
-            categoryFilter.value = "";
-            subcatFilter.value = "";
-            tagcatFilter.value = "";
-            fetchData();
-        });
+        if (resetFiltersBtn) {
+            resetFiltersBtn.addEventListener("click", () => {
+                if (searchInput) searchInput.value = "";
+                if (companyFilter) companyFilter.value = "";
+                if (brandFilter) brandFilter.value = "";
+                if (categoryFilter) categoryFilter.value = "";
+                if (subcatFilter) subcatFilter.value = "";
+                if (tagcatFilter) tagcatFilter.value = "";
+                applyFilters();
+            });
+        }
     }
 
-    // Fetch catalog list from backend API
+    // Fetch catalog list from static data.json (or API fallback)
     function fetchData() {
-        const queryParams = new URLSearchParams({
-            search: searchInput.value,
-            company: companyFilter.value,
-            brand: brandFilter ? brandFilter.value : "",
-            category: categoryFilter.value,
-            subcategory: subcatFilter.value,
-            tag_category: tagcatFilter.value
+        fetch("data.json")
+            .then(res => {
+                if (!res.ok) throw new Error("static data.json not found");
+                return res.json();
+            })
+            .then(data => {
+                state.allDocuments = data.documents || [];
+                state.filters = data.filters || {};
+                updateDropdownOptions(state.filters);
+                applyFilters();
+            })
+            .catch(err => {
+                console.warn("Falling back to /api/documents:", err);
+                fetch(`/api/documents`)
+                    .then(res => res.json())
+                    .then(data => {
+                        state.allDocuments = data.documents || [];
+                        state.filters = data.filters || {};
+                        updateDropdownOptions(state.filters);
+                        applyFilters();
+                    })
+                    .catch(e => console.error("Error fetching documents:", e));
+            });
+    }
+
+    // Client-side filtering logic for instant responsive experience
+    function applyFilters() {
+        const search = (searchInput ? searchInput.value : "").trim().toLowerCase();
+        const company = companyFilter ? companyFilter.value : "";
+        const brand = brandFilter ? brandFilter.value : "";
+        const category = categoryFilter ? categoryFilter.value : "";
+        const subcategory = subcatFilter ? subcatFilter.value : "";
+        const tagCategory = tagcatFilter ? tagcatFilter.value : "";
+
+        state.documents = state.allDocuments.filter(doc => {
+            if (search) {
+                const matchSearch = 
+                    (doc.filename && doc.filename.toLowerCase().includes(search)) ||
+                    (doc.type && doc.type.toLowerCase().includes(search)) ||
+                    (doc.ingredients && doc.ingredients.toLowerCase().includes(search)) ||
+                    (doc.application && doc.application.toLowerCase().includes(search)) ||
+                    (doc.brand && doc.brand.toLowerCase().includes(search)) ||
+                    (doc.company && doc.company.toLowerCase().includes(search));
+                if (!matchSearch) return false;
+            }
+
+            if (company && doc.company !== company) return false;
+            if (brand && doc.brand !== brand) return false;
+
+            if (category) {
+                const catStr = doc.applications_category || "";
+                if (!catStr.includes(category)) return false;
+            }
+
+            if (subcategory) {
+                const subStr = doc.applications_subcategory || "";
+                if (!subStr.includes(subcategory)) return false;
+            }
+
+            if (tagCategory) {
+                const tagStr = doc.applications_tag || "";
+                if (!tagStr.includes(tagCategory)) return false;
+            }
+
+            return true;
         });
 
-        fetch(`/api/documents?${queryParams}`)
-            .then(res => res.json())
-            .then(data => {
-                state.documents = data.documents;
-                if (data.filters) {
-                    updateDropdownOptions(data.filters);
-                }
-                renderProductsTable();
-            })
-            .catch(err => console.error("Error fetching documents:", err));
+        renderProductsTable();
     }
 
     // Populate drop downs dynamically
     function updateDropdownOptions(filters) {
-        updateSelect(companyFilter, filters.companies, "All Companies");
+        if (companyFilter) updateSelect(companyFilter, filters.companies || [], "All Companies");
         if (brandFilter) updateSelect(brandFilter, filters.brands || [], "All Brands");
-        updateSelect(categoryFilter, filters.categories, "All Categories");
-        updateSelect(subcatFilter, filters.subcategories, "All Subcategories");
-        updateSelect(tagcatFilter, filters.tag_categories, "All Groups");
+        if (categoryFilter) updateSelect(categoryFilter, filters.categories || [], "All Categories");
+        if (subcatFilter) updateSelect(subcatFilter, filters.subcategories || [], "All Subcategories");
+        if (tagcatFilter) updateSelect(tagcatFilter, filters.tag_categories || [], "All Groups");
     }
 
     function updateSelect(selectEl, list, defaultLabel) {
@@ -197,7 +253,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 tr.classList.add("selected-row");
             }
 
-            // Handle clean display of categories
             const appLabel = doc.applications_subcategory ? doc.applications_subcategory : doc.application;
 
             let auditBadge = '<span class="tag-badge" style="opacity:0.5;">N/A</span>';
@@ -218,14 +273,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td class="meta-txt" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${doc.recommendation || 'N/A'}</td>
             `;
 
-            // Click row to show details
             tr.addEventListener("click", (e) => {
                 document.querySelectorAll("#products-table tr").forEach(r => r.classList.remove("selected-row"));
                 tr.classList.add("selected-row");
                 state.selectedDocId = doc.id;
                 showProductDetails(doc);
                 
-                // If user specifically clicked filename link, also open preview modal directly
                 if (e.target.classList.contains("filename-link")) {
                     e.preventDefault();
                     openPreviewModal(doc);
@@ -235,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
             productsTbody.appendChild(tr);
         });
 
-        // Maintain selection if doc still exists in query list
         if (state.selectedDocId) {
             const selectedDoc = state.documents.find(d => d.id === state.selectedDocId);
             if (selectedDoc) {
@@ -251,294 +303,114 @@ document.addEventListener("DOMContentLoaded", () => {
         detailsEmpty.classList.add("hidden");
         detailsView.classList.remove("hidden");
 
-        // Format multiple tags
         const categoryBadges = doc.applications_category 
             ? doc.applications_category.split("; ").map(c => `<span class="tag-cat-badge">${c}</span>`).join("")
             : "";
         const subcategoryBadges = doc.applications_subcategory 
             ? doc.applications_subcategory.split("; ").map(s => `<span class="tag-badge">${s}</span>`).join("")
             : "";
-        const functionalBadges = doc.applications_tag 
-            ? doc.applications_tag.split("; ").map(t => `<span class="tag-badge" style="border-color: rgba(0,245,212,0.3); color: var(--accent);">${t}</span>`).join("")
+        const tagBadges = doc.applications_tag 
+            ? doc.applications_tag.split("; ").map(t => `<span class="tag-badge tag-group">${t}</span>`).join("")
             : "";
 
+        let auditBadgeHtml = '<span class="tag-badge" style="opacity:0.6;">Not Audited</span>';
+        if (doc.audit === 'Yes') {
+            auditBadgeHtml = '<span class="tag-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">Verified & Audited</span>';
+        } else if (doc.audit === 'No') {
+            auditBadgeHtml = '<span class="tag-badge" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">Audit Pending</span>';
+        }
+
+        const pdfPath = `documents/${encodeURIComponent(doc.filename)}`;
+
         detailsView.innerHTML = `
-            <div class="details-title">
-                <h2>${doc.filename}</h2>
-                <p class="subtitle" style="color: var(--accent); font-weight: 600;">${doc.company || 'Unknown'} <span style="color: var(--text-secondary); font-weight: 400;">(${doc.brand || 'No Brand'})</span></p>
-                <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button class="primary-btn" id="btn-preview-file" style="flex: 1;">Preview File</button>
-                    <button class="secondary-btn" id="btn-edit-file" style="flex: 1;">Edit Record</button>
-                    <button class="secondary-btn" id="btn-history-file" style="flex: 1;">History</button>
-                </div>
-            </div>
-            
-            <div class="meta-grid">
-                <div class="meta-item">
-                    <div class="meta-label">Brand</div>
-                    <div class="meta-val" style="color: var(--accent); font-weight: 600;">${doc.brand || 'N/A'}</div>
-                </div>
-                <div class="meta-item">
-                    <div class="meta-label">Product Type</div>
-                    <div class="meta-val">${doc.type || 'N/A'}</div>
+            <div class="details-header">
+                <div class="title-with-badge">
+                    <h3>${doc.filename}</h3>
+                    <div style="display: flex; gap: 6px; align-items: center; margin-top: 6px;">
+                        ${getBrandBadge(doc.brand)}
+                        ${auditBadgeHtml}
+                    </div>
                 </div>
             </div>
 
-            <div class="card-details">
-                <h3>Standard Application</h3>
-                <p>${doc.application || 'N/A'}</p>
-            </div>
-
-            <div class="card-details">
-                <h3>Packaging & Storage</h3>
-                <p><strong>Storage:</strong> ${doc.storage_conditions || 'N/A'}</p>
-                <p style="margin-top: 6px;"><strong>Packaging:</strong> ${doc.packaging || 'N/A'}</p>
-            </div>
-
-            <div class="card-details">
-                <h3>Ingredients & Allergens</h3>
-                <p><strong>Ingredients:</strong> ${doc.ingredients || 'N/A'}</p>
-                <p style="margin-top: 6px;"><strong>Allergens:</strong> ${doc.allergens || 'None declared'}</p>
-            </div>
-
-            <div class="card-details">
-                <h3>Audit & Recommendation</h3>
-                <p><strong>Audit Status:</strong> ${doc.audit || 'N/A'}</p>
-                <p style="margin-top: 6px;"><strong>Recommendation:</strong> ${doc.recommendation || 'None'}</p>
-            </div>
-
-            <div class="card-details">
-                <h3>Classifications</h3>
-                <div class="tag-group">
-                    <strong class="meta-txt" style="display:block; margin-bottom: 4px;">Main Categories:</strong>
-                    <div class="tag-badge-container">${categoryBadges || '<span class="meta-txt">None</span>'}</div>
+            <div class="details-body">
+                <div class="spec-grid">
+                    <div class="spec-item">
+                        <span class="spec-label">Company</span>
+                        <span class="spec-value">${doc.company || 'N/A'}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Product Type</span>
+                        <span class="spec-value">${doc.type || 'N/A'}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Shelf Life</span>
+                        <span class="spec-value">${doc.shelf_life || 'N/A'}</span>
+                    </div>
+                    <div class="spec-item">
+                        <span class="spec-label">Appearance</span>
+                        <span class="spec-value">${doc.appearance || 'N/A'}</span>
+                    </div>
                 </div>
-                <div class="tag-group" style="margin-top: 10px;">
-                    <strong class="meta-txt" style="display:block; margin-bottom: 4px;">Subcategories:</strong>
-                    <div class="tag-badge-container">${subcategoryBadges || '<span class="meta-txt">None</span>'}</div>
+
+                ${doc.recommendation ? `
+                <div class="detail-section" style="background: rgba(0, 245, 212, 0.05); border-left: 3px solid var(--accent); padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                    <h4 style="color: var(--accent); font-size: 13px; margin-bottom: 4px;">💡 Technical Recommendation</h4>
+                    <p style="font-size: 13px; color: var(--text-primary); line-height: 1.5;">${doc.recommendation}</p>
                 </div>
-                <div class="tag-group" style="margin-top: 10px;">
-                    <strong class="meta-txt" style="display:block; margin-bottom: 4px;">Functional Group / Specific Tags:</strong>
-                    <div class="tag-badge-container">${functionalBadges || '<span class="meta-txt">None</span>'}</div>
+                ` : ''}
+
+                <div class="detail-section">
+                    <h4>Application & Category Mappings</h4>
+                    <div class="tags-container">
+                        ${categoryBadges || '<span class="meta-txt">No mapped categories</span>'}
+                        ${subcategoryBadges}
+                        ${tagBadges}
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Ingredients</h4>
+                    <p class="desc-text">${doc.ingredients || 'No ingredients information specified.'}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Packaging</h4>
+                    <p class="desc-text">${doc.packaging || 'N/A'}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h4>Storage Conditions</h4>
+                    <p class="desc-text">${doc.storage_conditions || 'N/A'}</p>
+                </div>
+
+                <div class="detail-actions" style="display: flex; gap: 10px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                    <a href="${pdfPath}" target="_blank" class="primary-btn" style="flex: 1; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                        Open PDF Document
+                    </a>
                 </div>
             </div>
         `;
-
-        // Bind event handler for the preview button
-        const previewBtn = document.getElementById("btn-preview-file");
-        if (previewBtn) {
-            previewBtn.addEventListener("click", () => {
-                openPreviewModal(doc);
-            });
-        }
-
-        // Bind event handler for edit button
-        const editBtn = document.getElementById("btn-edit-file");
-        if (editBtn) {
-            editBtn.addEventListener("click", () => {
-                openEditModal(doc);
-            });
-        }
-
-        // Bind event handler for history button
-        const historyBtn = document.getElementById("btn-history-file");
-        if (historyBtn) {
-            historyBtn.addEventListener("click", () => {
-                openHistoryModal(doc);
-            });
-        }
     }
 
-    // Version History Modal
-    const historyModal = document.getElementById("history-modal");
-    const closeHistoryModalBtn = document.getElementById("close-history-modal-btn");
-    const versionHistoryList = document.getElementById("version-history-list");
-
-    if (closeHistoryModalBtn) {
-        closeHistoryModalBtn.addEventListener("click", () => historyModal.classList.add("hidden"));
-    }
-    if (historyModal) {
-        historyModal.addEventListener("click", (e) => {
-            if (e.target === historyModal) historyModal.classList.add("hidden");
-        });
-    }
-
-    function openHistoryModal(doc) {
-        document.getElementById("history-modal-title").textContent = `Revision History: ${doc.filename}`;
-        versionHistoryList.innerHTML = `<p style="color: var(--text-muted); font-size: 13px;">Loading version history...</p>`;
-        historyModal.classList.remove("hidden");
-
-        fetch(`/api/documents/${doc.id}/versions`)
-            .then(res => res.json())
-            .then(data => {
-                const versions = data.versions || [];
-                if (versions.length === 0) {
-                    versionHistoryList.innerHTML = `<p style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">No edit history logged yet for this record.</p>`;
-                    return;
-                }
-                versionHistoryList.innerHTML = versions.map(v => `
-                    <div class="history-item">
-                        <div class="history-header">
-                            <span class="history-ver">Version ${v.version_number}</span>
-                            <span class="history-date">${new Date(v.edited_at).toLocaleString()}</span>
-                        </div>
-                        <div class="history-summary">${v.change_summary}</div>
-                        <div class="history-by">Edited by ${v.edited_by}</div>
-                    </div>
-                `).join("");
-            })
-            .catch(err => {
-                versionHistoryList.innerHTML = `<p style="color: red; font-size: 13px;">Failed to load history.</p>`;
-            });
-    }
-
-    // Helper to open Edit Modal
-    const editModal = document.getElementById("edit-modal");
-    const closeEditModalBtn = document.getElementById("close-edit-modal-btn");
-    const cancelEditBtn = document.getElementById("cancel-edit-btn");
-    const editForm = document.getElementById("edit-form");
-
-    if (closeEditModalBtn) closeEditModalBtn.addEventListener("click", () => editModal.classList.add("hidden"));
-    if (cancelEditBtn) cancelEditBtn.addEventListener("click", () => editModal.classList.add("hidden"));
-
-    function openEditModal(doc) {
-        document.getElementById("edit-doc-id").value = doc.id;
-        document.getElementById("edit-company").value = doc.company || "";
-        const editBrandEl = document.getElementById("edit-brand");
-        if (editBrandEl) editBrandEl.value = doc.brand || "";
-        document.getElementById("edit-type").value = doc.type || "";
-        document.getElementById("edit-application").value = doc.application || "";
-        document.getElementById("edit-shelf-life").value = doc.shelf_life || "";
-        document.getElementById("edit-appearance").value = doc.appearance || "";
-        document.getElementById("edit-ingredients").value = doc.ingredients || "";
-        document.getElementById("edit-packaging").value = doc.packaging || "";
-        document.getElementById("edit-storage").value = doc.storage_conditions || "";
-        
-        const auditEl = document.getElementById("edit-audit");
-        if (auditEl) auditEl.value = doc.audit || "";
-        const recEl = document.getElementById("edit-recommendation");
-        if (recEl) recEl.value = doc.recommendation || "";
-        
-        editModal.classList.remove("hidden");
-    }
-
-    if (editForm) {
-        editForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const docId = document.getElementById("edit-doc-id").value;
-            const editBrandEl = document.getElementById("edit-brand");
-            const auditEl = document.getElementById("edit-audit");
-            const recEl = document.getElementById("edit-recommendation");
-            
-            const payload = {
-                company: document.getElementById("edit-company").value,
-                brand: editBrandEl ? editBrandEl.value : "",
-                type: document.getElementById("edit-type").value,
-                application: document.getElementById("edit-application").value,
-                shelf_life: document.getElementById("edit-shelf-life").value,
-                appearance: document.getElementById("edit-appearance").value,
-                ingredients: document.getElementById("edit-ingredients").value,
-                packaging: document.getElementById("edit-packaging").value,
-                storage_conditions: document.getElementById("edit-storage").value,
-                audit: auditEl ? auditEl.value : "",
-                recommendation: recEl ? recEl.value : ""
-            };
-
-            fetch(`/api/documents/${docId}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    editModal.classList.add("hidden");
-                    fetchData(); // Refresh list table
-                } else {
-                    alert("Error saving record: " + (data.error || "Unknown error"));
-                }
-            })
-            .catch(err => {
-                console.error("Save error:", err);
-                alert("Failed to save changes.");
-            });
-        });
-    }
-
-    // Dedicated helper to open modal and render file via Python backend
+    // Open PDF Preview modal
     function openPreviewModal(doc) {
         modalFilename.textContent = doc.filename;
-        previewContainer.innerHTML = "<div style='color: var(--accent); font-weight: 500; padding: 20px;'>Loading preview via Python server...</div>";
+        previewContainer.innerHTML = "";
         previewModal.classList.remove("hidden");
         
-        const filenameEnc = encodeURIComponent(doc.filename);
+        const docPath = `documents/${encodeURIComponent(doc.filename)}`;
         const fnLower = doc.filename.toLowerCase();
         
         if (fnLower.endsWith(".jpg") || fnLower.endsWith(".jpeg") || fnLower.endsWith(".png") || fnLower.endsWith(".gif")) {
-            previewContainer.innerHTML = `<img src="/documents/${filenameEnc}" alt="${doc.filename}">`;
+            previewContainer.innerHTML = `<img src="${docPath}" alt="${doc.filename}" style="max-width:100%; border-radius: 8px;">`;
         } else {
-            // Fetch PDF info from Python backend using doc_id query parameter
-            fetch(`/api/pdf-info?doc_id=${doc.id}`)
-                .then(res => res.json())
-                .then(info => {
-                    previewContainer.innerHTML = ""; // Clear loading message
-                    
-                    if (info.is_pdf && info.page_count > 0) {
-                        // Create page jump toolbar for multi-page PDFs
-                        if (info.page_count > 1) {
-                            const toolbar = document.createElement("div");
-                            toolbar.className = "pdf-toolbar";
-                            toolbar.style.cssText = "position: sticky; top: 0; z-index: 10; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 8px 16px; border-radius: 30px; display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border: 1px solid rgba(0, 245, 212, 0.3); box-shadow: 0 4px 15px rgba(0,0,0,0.5);";
-                            
-                            const label = document.createElement("span");
-                            label.style.cssText = "font-size: 13px; font-weight: 600; color: var(--accent); margin-right: 5px;";
-                            label.textContent = `📄 Total: ${info.page_count} Pages`;
-                            toolbar.appendChild(label);
-                            
-                            for (let p = 1; p <= info.page_count; p++) {
-                                const jumpBtn = document.createElement("button");
-                                jumpBtn.style.cssText = "background: rgba(255,255,255,0.08); color: #fff; border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;";
-                                jumpBtn.textContent = `Page ${p}`;
-                                jumpBtn.addEventListener("click", () => {
-                                    const pageEl = document.getElementById(`pdf-page-${p}`);
-                                    if (pageEl) {
-                                        pageEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }
-                                });
-                                toolbar.appendChild(jumpBtn);
-                            }
-                            previewContainer.appendChild(toolbar);
-                        }
-
-                        for (let i = 1; i <= info.page_count; i++) {
-                            const pageWrapper = document.createElement("div");
-                            pageWrapper.className = "pdf-page-wrapper";
-                            pageWrapper.id = `pdf-page-${i}`;
-                            pageWrapper.style.cssText = "display: flex; flex-direction: column; align-items: center; margin-bottom: 30px; width: 100%; scroll-margin-top: 60px;";
-                            
-                            const pageHeader = document.createElement("div");
-                            pageHeader.className = "page-number-badge";
-                            pageHeader.style.cssText = "background: rgba(0, 245, 212, 0.15); color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border: 1px solid rgba(0, 245, 212, 0.3);";
-                            pageHeader.textContent = `Page ${i} of ${info.page_count}`;
-                            
-                            const img = document.createElement("img");
-                            img.src = `/api/pdf-page?doc_id=${doc.id}&page=${i}`;
-                            img.alt = `Page ${i}`;
-                            img.style.cssText = "width: 90%; max-width: 850px; border-radius: 8px; box-shadow: 0 8px 30px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1);";
-                            
-                            pageWrapper.appendChild(pageHeader);
-                            pageWrapper.appendChild(img);
-                            previewContainer.appendChild(pageWrapper);
-                        }
-                    } else {
-                        // Fallback to direct image
-                        previewContainer.innerHTML = `<img src="/api/pdf-page?doc_id=${doc.id}&page=1" alt="${doc.filename}">`;
-                    }
-                })
-                .catch(err => {
-                    console.error("Error fetching PDF info from Python:", err);
-                    previewContainer.innerHTML = `<img src="/api/pdf-page?doc_id=${doc.id}&page=1" alt="${doc.filename}">`;
-                });
+            previewContainer.innerHTML = `
+                <iframe src="${docPath}" style="width: 100%; height: 80vh; border: none; border-radius: 8px;" title="${doc.filename}">
+                    <p>Your browser does not support inline PDFs. <a href="${docPath}" target="_blank">Click here to download PDF</a></p>
+                </iframe>
+            `;
         }
     }
 
@@ -551,22 +423,41 @@ document.addEventListener("DOMContentLoaded", () => {
     // Fetch Schema definitions for ER relationship mapping
     let schemaData = null;
     function fetchSchema() {
-        fetch("/api/schema")
-            .then(res => res.json())
-            .then(data => {
-                schemaData = data;
-                renderSchemaDiagram();
-            })
-            .catch(err => console.error("Error fetching schema:", err));
+        // Default schema structure for static mode
+        schemaData = {
+            schema: {
+                tds_documents: [
+                    { name: "id", type: "INTEGER" },
+                    { name: "filename", type: "TEXT" },
+                    { name: "company", type: "TEXT" },
+                    { name: "brand", type: "TEXT" },
+                    { name: "type", type: "TEXT" },
+                    { name: "shelf_life", type: "TEXT" },
+                    { name: "appearance", type: "TEXT" },
+                    { name: "ingredients", type: "TEXT" },
+                    { name: "packaging", type: "TEXT" },
+                    { name: "storage_conditions", type: "TEXT" },
+                    { name: "audit", type: "TEXT" },
+                    { name: "recommendation", type: "TEXT" }
+                ],
+                tds_applications: [
+                    { name: "id", type: "INTEGER" },
+                    { name: "document_id", type: "INTEGER" },
+                    { name: "category", type: "TEXT" },
+                    { name: "subcategory", type: "TEXT" },
+                    { name: "tag_category", type: "TEXT" }
+                ]
+            }
+        };
+        renderSchemaDiagram();
     }
 
     // Render interactive Database ER schema diagram
     function renderSchemaDiagram() {
-        if (!schemaData || state.activeTab !== "schema-tab") return;
+        if (!schemaData || state.activeTab !== "schema-tab" || !diagramContainer) return;
         
         diagramContainer.innerHTML = "";
 
-        // Create table card 1: tds_documents
         const docCard = document.createElement("div");
         docCard.className = "db-table-card active-table";
         docCard.id = "table-docs";
@@ -593,7 +484,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        // Create table card 2: tds_applications
         const appCard = document.createElement("div");
         appCard.className = "db-table-card active-table";
         appCard.id = "table-apps";
@@ -621,11 +511,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
-        // Append cards to canvas
         diagramContainer.appendChild(docCard);
         diagramContainer.appendChild(appCard);
 
-        // Draw relationship connector SVG line after DOM positions resolve
         setTimeout(() => {
             const docsColRow = document.getElementById("doc-col-id");
             const appsColRow = document.getElementById("app-col-document_id");
@@ -641,11 +529,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const endX = (endRect.left - canvasRect.left);
                 const endY = (endRect.top + endRect.height / 2 - canvasRect.top);
                 
-                // SVG canvas overlay
                 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
                 svg.setAttribute("class", "connector-svg");
                 
-                // Draw bezier line connector
                 const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 path.setAttribute("class", "connector-path");
                 
